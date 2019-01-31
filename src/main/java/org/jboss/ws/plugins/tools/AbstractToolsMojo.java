@@ -201,7 +201,7 @@ abstract class AbstractToolsMojo extends AbstractMojo
       }
       List<File> pluginDeps = getRequiredPluginDependencyPaths();
       for (File f : pluginDeps) {
-          cp.append(f.getAbsolutePath());
+          cp.append(f.toURI().toURL().toExternalForm());
           cp.append(" ");
       }
 
