@@ -140,7 +140,8 @@ public class WSContractDelegate
    private static List<String> initCommandList(String argLine, File manifestOnlyJar, String toolClass) throws Exception
    {
       List<String> commandList = new ArrayList<String>();
-      File javaFile = new File (System.getProperty("java.home") + FS + "bin" + FS + "java");
+      final String fileName = System.getProperty("os.name", "").startsWith("Windows") ? "java.exe" : "java";
+      File javaFile = new File (System.getProperty("java.home") + FS + "bin" + FS + fileName);
       commandList.add(javaFile.exists() ? javaFile.getCanonicalPath() : "java");
       if (argLine != null)
       {
