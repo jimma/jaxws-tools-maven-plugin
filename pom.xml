@@ -97,6 +97,9 @@
           <preBuildHookScript>setup.bsh</preBuildHookScript>
           <postBuildHookScript>verify.bsh</postBuildHookScript>
           <addTestClassPath>true</addTestClassPath>
+          <!-- uncomment to enable printing debug information to console
+          <streamLogs>true</streamLogs>
+          -->
         </configuration>
         <executions>
           <execution>

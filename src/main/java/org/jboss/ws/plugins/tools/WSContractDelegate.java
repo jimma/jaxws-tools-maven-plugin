@@ -21,7 +21,11 @@
  */
 package org.jboss.ws.plugins.tools;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,9 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.codehaus.plexus.util.cli.Commandline;
-import org.jboss.ws.plugins.tools.MavenLogStreamConsumer.Type;
 
 public class WSContractDelegate
 {
@@ -43,19 +44,24 @@ public class WSContractDelegate
    {
       this.log = log;
    }
-   
+
    public void runProvider(WSContractProviderParams params) throws Exception
    {
-      if (params.isFork())
+      log.warn("run provider");
+      log.warn("source=" + params.getSourceDirectory());
+      log.warn("dest=" + params.getOutputDirectory());
+      if (params.isFork() || Util.getJVMMajorVersion() > 8)
       {
+         log.warn("run out of process");
          runProviderOutOfProcess(params);
       }
       else
       {
+         log.warn("run in process");
          runProviderInProcess(params);
       }
    }
-   
+
    private void runProviderInProcess(WSContractProviderParams params) throws Exception
    {
       ClassLoader loader = params.getLoader();
@@ -65,39 +71,43 @@ public class WSContractDelegate
       Method m = providerClass.getMethod("provide", new Class<?>[]{String.class});
       m.invoke(provider, new Object[]{params.getEndpointClass()});
    }
-   
+
    private void runProviderOutOfProcess(WSContractProviderParams params) throws Exception
    {
       List<String> commandList = initCommandList(params.getArgLine(), params.getManifestOnlyJar(), "org.jboss.ws.tools.cmd.WSProvide");
-      String commandLine = getProviderCommandLine(commandList, params);
-      
-      if (log.isDebugEnabled())
-      {
-         log.debug("Running command line: " + commandLine);
-      }
-      
-      MavenLogStreamConsumer out = new MavenLogStreamConsumer(log, Type.OUTPUT);
-      MavenLogStreamConsumer err = new MavenLogStreamConsumer(log, Type.ERROR);
-      int result = CommandLineUtils.executeCommandLine(new Commandline(commandLine), out, err);
-      
+      getProviderCommandLine(commandList, params);
+
+      log.warn("Running command line: " + commandList);
+
+      ProcessBuilder pb = new ProcessBuilder(commandList);
+      Process p = pb.start();
+      new RT("provider output", p.getInputStream()).start();
+      new RT("provider error", p.getErrorStream()).start();
+      int result = p.waitFor();
+
       if (result != 0)
       {
          throw new Exception("Process terminated with code " + result);
       }
    }
-   
+
    public void runConsumer(WSContractConsumerParams params, String wsdl) throws Exception
    {
-      if (params.isFork())
+      log.warn("run consumer " + wsdl);
+      log.warn("source=" + params.getSourceDirectory());
+      log.warn("output=" + params.getOutputDirectory());
+      if (params.isFork() || Util.getJVMMajorVersion() > 8)
       {
+         log.warn("run consumer out of process");
          runConsumerOutOfProcess(params, wsdl);
       }
       else
       {
+         log.warn("run consumer in process");
          runConsumerInProcess(params, wsdl);
       }
    }
-   
+
    private void runConsumerInProcess(WSContractConsumerParams params, String wsdl) throws Exception
    {
       ClassLoader loader = params.getLoader();
@@ -107,27 +117,26 @@ public class WSContractDelegate
       Method m = consumerClass.getMethod("consume", new Class<?>[]{String.class});
       m.invoke(consumer, new Object[]{wsdl});
    }
-   
+
    private void runConsumerOutOfProcess(WSContractConsumerParams params, String wsdl) throws Exception
    {
       List<String> commandList = initCommandList(params.getArgLine(), params.getManifestOnlyJar(), "org.jboss.ws.tools.cmd.WSConsume");
-      String commandLine = getConsumerCommandLine(commandList, params, wsdl);
-      
-      if (log.isDebugEnabled())
-      {
-         log.debug("Running command line: " + commandLine);
-      }
-      
-      MavenLogStreamConsumer out = new MavenLogStreamConsumer(log, Type.OUTPUT);
-      MavenLogStreamConsumer err = new MavenLogStreamConsumer(log, Type.ERROR);
-      int result = CommandLineUtils.executeCommandLine(new Commandline(commandLine), out, err);
-      
+      getConsumerCommandLine(commandList, params, wsdl);
+
+      log.warn("Running command line: " + commandList);
+
+      ProcessBuilder pb = new ProcessBuilder(commandList);
+      Process p = pb.start();
+      new RT("consumer output", p.getInputStream()).start();
+      new RT("consumer error", p.getErrorStream()).start();
+      int result = p.waitFor();
+
       if (result != 0)
       {
          throw new Exception("Process terminated with code " + result);
       }
    }
-   
+
    /**
     * Write manifest-only jar to the command-line
     *
@@ -148,15 +157,15 @@ public class WSContractDelegate
          commandList.add(argLine);
       }
       if (Util.getJVMMajorVersion() > 8) {
-         commandList.add("--add-modules=java.compiler ");
+         commandList.add("--add-modules=java.compiler");
       }
-      commandList.add("-classpath ");
+      commandList.add("-classpath");
       commandList.add(manifestOnlyJar.getCanonicalPath());
       commandList.add(toolClass);
       return commandList;
    }
-   
-   private static String getConsumerCommandLine(List<String> commandList, WSContractConsumerParams params, String wsdl)
+
+   private static void getConsumerCommandLine(List<String> commandList, WSContractConsumerParams params, String wsdl)
    {
       List<String> bindingFiles = params.getBindingFiles();
       if (bindingFiles != null && !bindingFiles.isEmpty())
@@ -185,8 +194,8 @@ public class WSContractDelegate
       }
       if (params.getEncoding() != null)
       {
-    	  commandList.add("-d");
-    	  commandList.add(params.getEncoding());
+         commandList.add("-d");
+         commandList.add(params.getEncoding());
       }
       if (params.getOutputDirectory() != null)
       {
@@ -216,16 +225,9 @@ public class WSContractDelegate
          commandList.add("-a");
       }
       commandList.add(wsdl);
-      StringBuilder command = new StringBuilder();
-      for (String s : commandList)
-      {
-         command.append(s);
-         command.append(" ");
-      }
-      return command.toString();
    }
-   
-   private static String getProviderCommandLine(List<String> commandList, WSContractProviderParams params)
+
+   private static void getProviderCommandLine(List<String> commandList, WSContractProviderParams params)
    {
       if (params.isGenerateSource())
       {
@@ -259,15 +261,8 @@ public class WSContractDelegate
          commandList.add(params.getPortSoapAddress());
       }
       commandList.add(params.getEndpointClass());
-      StringBuilder command = new StringBuilder();
-      for (String s : commandList)
-      {
-         command.append(s);
-         command.append(" ");
-      }
-      return command.toString();
    }
-   
+
    private static void setupConsumer(Class<?> consumerClass, Object consumer, WSContractConsumerParams params) throws Exception
    {
       callMethod(consumerClass, consumer, "setAdditionalCompilerClassPath", params.getAdditionalCompilerClassPath());
@@ -313,29 +308,29 @@ public class WSContractDelegate
       }
       if (params.getEncoding() != null)
       {
-    	  callMethod(consumerClass, consumer, "setEncoding", params.getEncoding());
+         callMethod(consumerClass, consumer, "setEncoding", params.getEncoding());
       }
    }
-   
+
    private static Object callMethod(Class<?> clazz, Object obj, String name, boolean param) throws Exception
    {
       Method m = clazz.getMethod(name, new Class<?>[]{boolean.class});
       return m.invoke(obj, new Object[]{param});
    }
-   
+
    private static <T> Object callMethod(Class<?> clazz, Object obj, String name, T param) throws Exception
    {
       Method m = clazz.getMethod(name, new Class<?>[]{param.getClass()});
       return m.invoke(obj, new Object[]{param});
    }
-   
+
    @SuppressWarnings("rawtypes")
    private static Object callMethod(Class<?> clazz, Object obj, String name, List param) throws Exception
    {
       Method m = clazz.getMethod(name, new Class<?>[]{List.class});
       return m.invoke(obj, new Object[]{param});
    }
-   
+
    private static void setupProvider(Class<?> providerClass, Object provider, WSContractProviderParams params) throws Exception
    {
       Method m = providerClass.getMethod("setClassLoader", new Class<?>[]{ClassLoader.class});
@@ -359,8 +354,28 @@ public class WSContractDelegate
       }
       if (params.getPortSoapAddress() != null)
       {
-          callMethod(providerClass, provider, "setPortSoapAddress", params.getPortSoapAddress());
+         callMethod(providerClass, provider, "setPortSoapAddress", params.getPortSoapAddress());
       }
    }
 
+   private class RT extends Thread {
+      private final InputStream is;
+      private final String name;
+      public RT(String name, InputStream is) {
+         setDaemon(true);
+         this.name = name;
+         this.is = is;
+      }
+      @Override
+      public void run () {
+         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            String l;
+            while ((l = br.readLine()) != null) {
+               log.info(name + ": " + l);
+            }
+         } catch (IOException e) {
+            log.warn("could not read", e);
+         }
+      }
+   }
 }
