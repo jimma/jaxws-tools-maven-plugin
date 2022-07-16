@@ -25,16 +25,17 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-
 /**
  * Runs wsconsume tool
+ *
+ * @goal wsconsume
+ * @phase generate-sources
+ * @requiresDependencyResolution compile+runtime
+ * @description JBossWS WSConsume Maven Plugin.
+ *
  * @author alessio.soldano@jboss.com
  * @since 24-Feb-2010
  */
-@Mojo(name = "wsconsume",defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class WsConsumeMojo extends AbstractWsConsumeMojo
 {
    /**

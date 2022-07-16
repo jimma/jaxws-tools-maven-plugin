@@ -31,7 +31,7 @@ import org.apache.maven.artifact.Artifact;
  * 
  * @goal wsprovide
  * @phase process-classes
- * @requiresDependencyResolution compile
+ * @requiresDependencyResolution compile+runtime
  * @description JBossWS WSProvide Maven Plugin.
  * 
  * @author alessio.soldano@jboss.com
