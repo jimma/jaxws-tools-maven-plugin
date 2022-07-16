@@ -21,9 +21,13 @@
  */
 package org.jboss.test.ws.plugins.tools;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
+import org.apache.maven.plugin.testing.MojoRule;
+import org.codehaus.plexus.component.configurator.ComponentConfigurator;
 import org.jboss.test.ws.plugins.tools.utils.AbstractToolsMojoTestCase;
 import org.jboss.ws.plugins.tools.AbstractWsConsumeMojo;
 import org.jboss.ws.plugins.tools.AbstractWsProvideMojo;
@@ -31,6 +35,7 @@ import org.jboss.ws.plugins.tools.TestWsConsumeMojo;
 import org.jboss.ws.plugins.tools.TestWsProvideMojo;
 import org.jboss.ws.plugins.tools.WsConsumeMojo;
 import org.jboss.ws.plugins.tools.WsProvideMojo;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -42,16 +47,14 @@ import org.junit.Test;
  */
 public class ArgumentTest extends AbstractToolsMojoTestCase
 {
-
    @Test
    public void testWsConsumePluginArguments() throws Exception
    {
       final String pluginConfig = "target/test-classes/test-argument/wsconsume-plugin-config.xml";
-
-      internalWsConsumeTest(getMojo(WsConsumeMojo.class, "wsconsume", pluginConfig));
-      internalWsConsumeTest(getMojo(TestWsConsumeMojo.class, "wsconsume", pluginConfig));
+      internalWsConsumeTest((WsConsumeMojo)getMojo("wsconsume", pluginConfig));
+      internalWsConsumeTest((TestWsConsumeMojo)getMojo("wsconsume-test", pluginConfig));
    }
-   
+
    private static void internalWsConsumeTest(AbstractWsConsumeMojo mojo)
    {
       assertEquals("t", mojo.getTarget());
@@ -76,10 +79,9 @@ public class ArgumentTest extends AbstractToolsMojoTestCase
    {
       final String pluginConfig = "target/test-classes/test-argument/wsprovide-plugin-config.xml";
 
-      internalWsProvideTest(getMojo(WsProvideMojo.class, "wsprovide", pluginConfig));
-      internalWsProvideTest(getMojo(TestWsProvideMojo.class, "wsprovide", pluginConfig));
+      internalWsProvideTest((WsProvideMojo)getMojo("wsprovide", pluginConfig));
+      internalWsProvideTest((TestWsProvideMojo)getMojo("wsprovide-test", pluginConfig));
    }
-   
    private static void internalWsProvideTest(AbstractWsProvideMojo mojo)
    {
       assertEquals("output", mojo.getOutputDirectory().getName());
@@ -94,5 +96,6 @@ public class ArgumentTest extends AbstractToolsMojoTestCase
       assertEquals("-Dfoo=bar", mojo.getArgLine());
       assertEquals("http://someHost:somePort", mojo.getPortSoapAddress());
    }
+
 
 }
