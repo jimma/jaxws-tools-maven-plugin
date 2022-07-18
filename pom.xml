@@ -26,16 +26,16 @@
 
   <!-- Properties -->
   <properties>
-    <jbossws.common.tools.version>1.2.4.Final</jbossws.common.tools.version>
+    <jbossws.common.tools.version>1.4.0.Final</jbossws.common.tools.version>
     <getopt.version>1.0.13</getopt.version>
-    <maven.project.version>2.2.1</maven.project.version>
-    <maven.plugin.api.version>2.2.1</maven.plugin.api.version>
-    <maven.invoker.plugin.version>3.0.1</maven.invoker.plugin.version>
+    <maven.version>3.8.1</maven.version>
+    <maven.invoker.plugin.version>3.3.0</maven.invoker.plugin.version>
+    <maven.plugin.testing.harness.version>3.3.0</maven.plugin.testing.harness.version>
+    <plexus-utils.version>3.4.2</plexus-utils.version>
     <!-- For test -->
-    <junit.version>4.7</junit.version>
-    <maven.plugin.testing.harness.version>1.1</maven.plugin.testing.harness.version>
+    <maven.plugin-plugin.version>3.6.2</maven.plugin-plugin.version>
+    <junit.version>4.13</junit.version>
   </properties>
-  
   <!-- Dependencies -->
   <dependencies>
     <dependency>
@@ -43,32 +43,44 @@
       <artifactId>jbossws-common-tools</artifactId>
       <version>${jbossws.common.tools.version}</version>
     </dependency>
+
     <dependency>
       <groupId>gnu.getopt</groupId>
       <artifactId>java-getopt</artifactId>
       <version>${getopt.version}</version>
     </dependency>
+
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>${maven.project.version}</version>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>${plexus-utils.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>${maven.plugin.api.version}</version>
+      <version>${maven.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-compat</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
     <!-- Non transient test dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
-      <type>jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven.shared</groupId>
+      <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
       <version>${maven.plugin.testing.harness.version}</version>
       <scope>test</scope>
@@ -78,8 +90,9 @@
   <reporting>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>2.8</version>
+        <version>${maven.plugin-plugin.version}</version>
       </plugin>
     </plugins>
   </reporting>
@@ -87,6 +100,7 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
         <version>${maven.invoker.plugin.version}</version>
         <configuration>
@@ -117,6 +131,7 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>

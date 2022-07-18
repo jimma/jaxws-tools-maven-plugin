@@ -23,10 +23,22 @@ package org.jboss.test.ws.plugins.tools.utils;
 
 import java.io.File;
 
+import java.nio.file.Path;
+import org.apache.maven.execution.DefaultMavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.plugin.testing.MojoRule;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.junit.Assert;
+import org.junit.Rule;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Utility class for providing additional means of looking up mojo classes.
@@ -35,38 +47,41 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
  * @since 26-Feb-2010
  *
  */
-public abstract class AbstractToolsMojoTestCase extends AbstractMojoTestCase
+public abstract class AbstractToolsMojoTestCase
 {
 
+   @Rule
+   public MojoRule rule = new MojoRule() {
+      @Override
+      protected void before() throws Throwable {
+      }
+
+      @Override
+      protected void after() {
+      }
+   };
+
    @SuppressWarnings("unchecked")
-   protected <T extends Mojo> T getMojo(Class<T> mojoClass, String goal, String pomXml) throws Exception
+   protected <T extends Mojo> T getMojo(String goal, String pomXml) throws Exception
    {
-      File testPom = new File(getBasedir(), pomXml);
+      File testPom = new File(pomXml);
 
-      T mojo = (T)lookupMojo(goal, testPom);
-
+      MavenProject project = readMavenProject(testPom);
+      T mojo = (T) rule.lookupConfiguredMojo(project, goal);
       assertNotNull(mojo);
-
       return mojo;
    }
-
-   @SuppressWarnings("unchecked")
-   protected <T extends Mojo> T getMojo(Class<T> mojoClass, String groupId, String artifactId, String version, String goal, String pomXml) throws Exception
-   {
-      File testPom = new File(getBasedir(), pomXml);
-
-      T mojo = (T)lookupMojo(groupId, artifactId, version, goal, testPom);
-
-      assertNotNull(mojo);
-
-      return mojo;
+   public MavenProject readMavenProject(File pom)
+           throws Exception {
+      MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+      request.setBaseDirectory(pom.getParentFile());
+      ProjectBuildingRequest configuration = request.getProjectBuildingRequest();
+      configuration.setRepositorySession(new DefaultRepositorySystemSession());
+      MavenProject project = rule.lookup(ProjectBuilder.class).build(pom, configuration).getProject();
+      Assert.assertNotNull(project);
+      return project;
    }
 
-   protected Mojo lookupMojo(String groupId, String artifactId, String version, String goal, File pom) throws Exception
-   {
-      PlexusConfiguration pluginConfiguration = extractPluginConfiguration(artifactId, pom);
-      return lookupMojo(groupId, artifactId, version, goal, pluginConfiguration);
-   }
 
    protected class DebugEnabledLog extends SystemStreamLog
    {

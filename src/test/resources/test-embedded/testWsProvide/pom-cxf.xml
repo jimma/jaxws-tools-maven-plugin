@@ -23,13 +23,12 @@
 		  <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
-			<version>2.4</version>
-			<configuration>
-				<source>1.8</source>
-				<target>1.8</target>
-				<maxmem>256M</maxmem>
-				<fork>${compiler.fork}</fork>
-			</configuration>
+              <configuration>
+                  <source>1.8</source>
+                  <target>1.8</target>
+                  <maxmem>256M</maxmem>
+                  <fork>${compiler.fork}</fork>
+              </configuration>
 		  </plugin>
 		</plugins>
 	  </pluginManagement>
@@ -94,7 +93,7 @@
 	  <dependency>
 		<groupId>org.jboss.ws.cxf</groupId>
 		<artifactId>jbossws-cxf-client</artifactId>
-		<version>5.2.0.Final</version>
+		<version>5.5.0.Final</version>
 	  </dependency>
 	</dependencies>
 </project>

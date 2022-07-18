@@ -25,13 +25,12 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
-
 /**
  * Runs wsconsume tool
  *
  * @goal wsconsume
  * @phase generate-sources
- * @requiresDependencyResolution compile
+ * @requiresDependencyResolution compile+runtime
  * @description JBossWS WSConsume Maven Plugin.
  *
  * @author alessio.soldano@jboss.com

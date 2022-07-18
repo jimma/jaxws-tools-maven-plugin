@@ -53,7 +53,7 @@ public class TestWsConsumeMojo extends AbstractWsConsumeMojo
     * @required
     * @readonly
     */
-   protected List<String> testClasspathElements;
+   protected List<String> classpathElements;
    
    /**
     * The plugin dependency artifacts
@@ -73,7 +73,7 @@ public class TestWsConsumeMojo extends AbstractWsConsumeMojo
    @Override
    public List<String> getClasspathElements()
    {
-      return testClasspathElements;
+      return classpathElements;
    }
    
    @Override
