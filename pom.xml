@@ -28,7 +28,7 @@
   <properties>
     <jbossws.common.tools.version>1.4.0.Final</jbossws.common.tools.version>
     <getopt.version>1.0.13</getopt.version>
-    <maven.version>3.8.1</maven.version>
+    <maven.version>3.6.3</maven.version>
     <maven.invoker.plugin.version>3.3.0</maven.invoker.plugin.version>
     <maven.plugin.testing.harness.version>3.3.0</maven.plugin.testing.harness.version>
     <plexus-utils.version>3.4.2</plexus-utils.version>
