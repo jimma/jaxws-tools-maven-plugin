@@ -25,11 +25,15 @@ org.jboss.ws.cxf:jbossws-cxf-client in his maven dependencies.
   <dependency>
     <groupId>org.jboss.ws.cxf</groupId>
     <artifactId>jbossws-cxf-client</artifactId>
-    <version>VERSION_HERE</version>
+    <version>5.5.0.Final</version>
     <scope>provided</scope>
   </dependency>
 </dependencies>
 ```
+
+**Note**
+jaxws-tools-maven-plugin 1.3.0.Final only works with jbossws-cxf-client 5.5.0 Final and above javax version
+after log4j dependency is removed from jbossws-cxf.
 
 
 ## wsconsume configuration
@@ -54,7 +58,7 @@ The generated sources are then compiled together with the other project classes.
     <plugin>
       <groupId>org.jboss.ws.plugins</groupId>
       <artifactId>jaxws-tools-maven-plugin</artifactId>
-      <version>1.2.0.Final</version>
+      <version>1.3.0.Final</version>
       <configuration>
         <wsdls>
           <wsdl>${basedir}/test.wsdl</wsdl>
@@ -83,7 +87,7 @@ instructed to be verbose in its processing information.
     <plugin>
       <groupId>org.jboss.ws.plugins</groupId>
       <artifactId>jaxws-tools-maven-plugin</artifactId>
-      <version>1.2.0.Final</version>
+      <version>1.3.0.Final</version>
       <configuration>
        <wsdls>
         <wsdl>${basedir}/test.wsdl</wsdl>
@@ -152,7 +156,7 @@ generated during the generate-test-sources phase.
     <plugin>
       <groupId>org.jboss.ws.plugins</groupId>
       <artifactId>jaxws-tools-maven-plugin</artifactId>
-      <version>1.2.0.Final</version>
+      <version>1.3.0.Final</version>
       <configuration>
         <verbose>true</verbose>
         <endpointClass>org.jboss.test.ws.plugins.tools.wsprovide.TestEndpoint</endpointClass>
