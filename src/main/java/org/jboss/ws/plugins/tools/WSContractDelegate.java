@@ -47,17 +47,17 @@ public class WSContractDelegate
 
    public void runProvider(WSContractProviderParams params) throws Exception
    {
-      log.warn("run provider");
-      log.warn("source=" + params.getSourceDirectory());
-      log.warn("dest=" + params.getOutputDirectory());
+      log.info("run provider");
+      log.info("source=" + params.getSourceDirectory());
+      log.info("dest=" + params.getOutputDirectory());
       if (params.isFork() || Util.getJVMMajorVersion() > 8)
       {
-         log.warn("run out of process");
+         log.info("run out of process");
          runProviderOutOfProcess(params);
       }
       else
       {
-         log.warn("run in process");
+         log.info("run in process");
          runProviderInProcess(params);
       }
    }
@@ -77,7 +77,7 @@ public class WSContractDelegate
       List<String> commandList = initCommandList(params.getArgLine(), params.getManifestOnlyJar(), "org.jboss.ws.tools.cmd.WSProvide");
       getProviderCommandLine(commandList, params);
 
-      log.warn("Running command line: " + commandList);
+      log.info("Running command line: " + commandList);
 
       ProcessBuilder pb = new ProcessBuilder(commandList);
       Process p = pb.start();
@@ -93,17 +93,17 @@ public class WSContractDelegate
 
    public void runConsumer(WSContractConsumerParams params, String wsdl) throws Exception
    {
-      log.warn("run consumer " + wsdl);
-      log.warn("source=" + params.getSourceDirectory());
-      log.warn("output=" + params.getOutputDirectory());
+      log.info("run consumer " + wsdl);
+      log.info("source=" + params.getSourceDirectory());
+      log.info("output=" + params.getOutputDirectory());
       if (params.isFork() || Util.getJVMMajorVersion() > 8)
       {
-         log.warn("run consumer out of process");
+         log.info("run consumer out of process");
          runConsumerOutOfProcess(params, wsdl);
       }
       else
       {
-         log.warn("run consumer in process");
+         log.info("run consumer in process");
          runConsumerInProcess(params, wsdl);
       }
    }
@@ -123,7 +123,7 @@ public class WSContractDelegate
       List<String> commandList = initCommandList(params.getArgLine(), params.getManifestOnlyJar(), "org.jboss.ws.tools.cmd.WSConsume");
       getConsumerCommandLine(commandList, params, wsdl);
 
-      log.warn("Running command line: " + commandList);
+      log.info("Running command line: " + commandList);
 
       ProcessBuilder pb = new ProcessBuilder(commandList);
       Process p = pb.start();
